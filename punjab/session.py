@@ -474,7 +474,15 @@ class Session(jabber.JabberClientFactory, server.Session):
             self.raw_buffer = u""
 
         self.elems.append(stz)
-        if self.waiting_requests and len(self.waiting_requests) > 0:
+
+        # history contains messages with "delay" attribute; DO NOT push these out immediately
+        stz_delay = False
+        if hasattr(stz, 'name') and stz.name == 'message':
+            for e in stz.elements():
+                if e.name == 'delay':
+                    stz_delay = True
+
+        if self.waiting_requests and len(self.waiting_requests) > 0 and not stz_delay:
             # if there are any waiting requests, give them all the
             # data so far, plus this new data
             self.returnWaitingRequests()
