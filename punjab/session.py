@@ -478,9 +478,10 @@ class Session(jabber.JabberClientFactory, server.Session):
         # history contains messages with "delay" attribute; DO NOT push these out immediately
         stz_delay = False
         if hasattr(stz, 'name') and stz.name == 'message':
-            for e in stz.elements():
-                if e.name == 'delay':
-                    stz_delay = True
+            if 'type' in stz.attributes and stz.attributes['type'] == 'groupchat':
+                for e in stz.elements():
+                    if e.name == 'delay':
+                        stz_delay = True
 
         if self.waiting_requests and len(self.waiting_requests) > 0 and not stz_delay:
             # if there are any waiting requests, give them all the
